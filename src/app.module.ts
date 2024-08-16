@@ -5,20 +5,29 @@ import ConfigModule from './config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { LoggingMiddleware } from './middleware/logging.middleware';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     ConfigModule(),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      url: process.env.DB_URL,
-      username: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      entities: [__dirname + '/**/*.entity.{js,ts}'],
-      synchronize: false,
-      logging: true,
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule()],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get('DB_HOST'),
+        username: configService.get('DB_USER'),
+        password: configService.get('DB_PASSWORD'),
+        database: configService.get('DB_NAME'),
+        entities: [__dirname + '/**/*.entity.{js,ts}'],
+        synchronize: false,
+        logging: configService.get('DB_LOGGING') === 'true',
+      }),
+      inject: [ConfigService],
     }),
+    UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
