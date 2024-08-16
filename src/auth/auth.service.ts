@@ -7,10 +7,12 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { hash, compare } from 'bcrypt';
+import { plainToClass } from 'class-transformer';
 
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
 import { UsersService } from 'src/users/users.service';
+import { AuthResponseDto } from './dto/login-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -35,7 +37,7 @@ export class AuthService {
     const { accessToken, refreshToken } =
       await this.createAccessAndRefreshToken(createdUser.id);
 
-    return {
+    const result = {
       accessToken,
       refreshToken,
       info: {
@@ -44,6 +46,8 @@ export class AuthService {
         profileImageUrl: null,
       },
     };
+
+    return plainToClass(AuthResponseDto, result);
   }
 
   async login(data: LoginUserDto) {
@@ -60,7 +64,7 @@ export class AuthService {
     const { accessToken, refreshToken } =
       await this.createAccessAndRefreshToken(user.id);
 
-    return {
+    const result = {
       accessToken,
       refreshToken,
       info: {
@@ -69,6 +73,8 @@ export class AuthService {
         profileImageUrl: user.profileImageUrl,
       },
     };
+
+    return plainToClass(AuthResponseDto, result);
   }
 
   async findUser(username: string) {
