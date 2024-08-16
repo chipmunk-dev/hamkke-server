@@ -25,7 +25,7 @@ export class AuthService {
   async signup(data: CreateUserDto) {
     const user = await this.findUser(data.username);
     if (user) {
-      throw new ConflictException('이미 존재하는 이메일입니다');
+      throw new ConflictException('이미 존재하는 사용자입니다');
     }
 
     const hashedPassword = await this.hashPassword(data.password);
@@ -58,7 +58,7 @@ export class AuthService {
 
     const isMath = await compare(data.password, user.password);
     if (!isMath) {
-      throw new UnauthorizedException('비밀번호가 일치하지 않습니다.');
+      throw new UnauthorizedException('비밀번호가 일치하지 않습니다');
     }
 
     const { accessToken, refreshToken } =
