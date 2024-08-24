@@ -3,7 +3,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from 'src/routes/users/users.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
 

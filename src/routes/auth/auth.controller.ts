@@ -1,9 +1,21 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { AuthService } from './auth.service';
-import { LoginUserDto } from 'src/users/dto/login-user.dto';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+
+import { CreateUserDto } from 'src/routes/users/dto/create-user.dto';
+import { LoginUserDto } from 'src/routes/users/dto/login-user.dto';
+import { AuthService } from './auth.service';
 import { AuthResponseDto } from './dto/login-response.dto';
+import { LocalAuthGuard } from './guard/local-auth.guard';
+import { GoogleAuthGuard } from './guard/google-auth.guard';
+import { GoogleUser } from './types/google-user.type';
+import { UserType } from 'src/entities/user.entity';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -51,8 +63,23 @@ export class AuthController {
     status: 401,
     description: '비밀번호 불일치',
   })
+  @UseGuards(LocalAuthGuard)
   @Post('login/email')
-  async login(@Body() data: LoginUserDto) {
-    return await this.authService.login(data);
+  async login(@Request() req) {
+    return this.authService.login(req.user);
+  }
+
+  @ApiOperation({
+    summary: '구글 로그인',
+    description: '구글 로그인 페이지로 이동',
+  })
+  @UseGuards(GoogleAuthGuard)
+  @Get('google')
+  async googleAuth() {}
+
+  @UseGuards(GoogleAuthGuard)
+  @Get('google/callback')
+  async googleAuthRedirect(@Request() req) {
+    return this.authService.oauthLogin(req.user as GoogleUser, UserType.GOOGLE);
   }
 }

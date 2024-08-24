@@ -1,17 +1,13 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { hash, compare } from 'bcrypt';
 import { plainToClass } from 'class-transformer';
 
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { LoginUserDto } from 'src/users/dto/login-user.dto';
-import { UsersService } from 'src/users/users.service';
+import { CreateUserDto } from 'src/routes/users/dto/create-user.dto';
+import { UsersService } from 'src/routes/users/users.service';
+import { User, UserType } from 'src/entities/user.entity';
+import { OAuthUser } from './types/oauth-user.type';
 import { AuthResponseDto } from './dto/login-response.dto';
 
 @Injectable()
@@ -22,13 +18,18 @@ export class AuthService {
     private readonly usersService: UsersService,
   ) {}
 
-  async signup(data: CreateUserDto) {
-    const user = await this.findUser(data.username);
-    if (user) {
-      throw new ConflictException('이미 존재하는 사용자입니다');
+  async signup(data: CreateUserDto, isCheckUser: boolean = true) {
+    let hashedPassword: string | null = null;
+
+    if (isCheckUser) {
+      const user = await this.findUser(data.username);
+      if (user) {
+        throw new ConflictException('이미 존재하는 사용자입니다');
+      }
+
+      hashedPassword = await this.hashPassword(data.password);
     }
 
-    const hashedPassword = await this.hashPassword(data.password);
     const createdUser = await this.usersService.createUser({
       ...data,
       password: hashedPassword,
@@ -43,27 +44,16 @@ export class AuthService {
       info: {
         userId: createdUser.id,
         nickname: createdUser.nickname,
-        profileImageUrl: null,
+        profileImageUrl: createdUser.profileImageUrl,
       },
     };
 
     return plainToClass(AuthResponseDto, result);
   }
 
-  async login(data: LoginUserDto) {
-    const user = await this.findUser(data.username);
-    if (!user) {
-      return new NotFoundException('존재하지 않는 계정입니다');
-    }
-
-    const isMath = await compare(data.password, user.password);
-    if (!isMath) {
-      throw new UnauthorizedException('비밀번호가 일치하지 않습니다');
-    }
-
+  async login(user: User) {
     const { accessToken, refreshToken } =
       await this.createAccessAndRefreshToken(user.id);
-
     const result = {
       accessToken,
       refreshToken,
@@ -79,6 +69,20 @@ export class AuthService {
 
   async findUser(username: string) {
     return await this.usersService.findUserByUsername(username);
+  }
+
+  async validateUser(username: string, password: string) {
+    const user = await this.findUser(username);
+    if (!user) {
+      return null;
+    }
+
+    const isMath = await compare(password, user.password);
+    if (!isMath) {
+      return null;
+    }
+
+    return user;
   }
 
   async createAccessAndRefreshToken(userId: number) {
@@ -110,5 +114,25 @@ export class AuthService {
     return this.jwtService.signAsync(payload, {
       expiresIn,
     });
+  }
+
+  /**
+   * OAuth 로그인 처리
+   */
+  async oauthLogin(user: OAuthUser, type: UserType) {
+    const existingUser = await this.findUser(user.username);
+
+    if (existingUser) {
+      return this.login(existingUser);
+    }
+
+    const createUserDto = {
+      username: user.username,
+      nickname: user.nickname,
+      profileImageUrl: user.profileImageUrl,
+      userType: UserType[type] as UserType,
+    };
+
+    return this.signup(createUserDto, false);
   }
 }

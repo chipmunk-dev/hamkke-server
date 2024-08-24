@@ -1,4 +1,6 @@
 export default () => ({
+  PROTOCOL: process.env.PROTOCOL,
+  HOST: process.env.HOST,
   PORT: process.env.PORT,
   DB_HOST: process.env.DB_HOST,
   DB_NAME: process.env.DB_NAME,
@@ -9,4 +11,6 @@ export default () => ({
   JWT_EXPIRATION_TIME: process.env.JWT_EXPIRATION_TIME,
   JWT_REFRESH_EXPIRATION_TIME: process.env.JWT_REFRESH_EXPIRATION_TIME,
   SALT_ROUNDS: process.env.SALT_ROUNDS,
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+  GOOGLE_SECRET: process.env.GOOGLE_SECRET,
 });
