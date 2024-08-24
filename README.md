@@ -30,8 +30,8 @@ b) Docker 설치 확인 <br/>
 # 도커 실행 (서버 실행)
 $ npm run docker:build
 
-# 터미널 접속
-$ npm run docker
+# 도커에 실행중인 서버 터미널 접속
+$ npm run docker:exec
 
 # 데이터베이스 마이그레이션
 $ npm run migration:generate
