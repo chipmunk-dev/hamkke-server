@@ -7,6 +7,11 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+export enum UserType {
+  LOCAL = 'local',
+  GOOGLE = 'google',
+}
+
 @Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn()
@@ -28,15 +33,15 @@ export class User {
   })
   username: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   @ApiProperty({
     description: '유저 비밀번호',
     example: '1234',
     type: String,
-    required: true,
+    required: false,
     minLength: 8,
   })
-  password: string;
+  password: string | null;
 
   @Column({ type: 'varchar', length: 50, nullable: false })
   @ApiProperty({
@@ -49,7 +54,29 @@ export class User {
   nickname: string;
 
   @Column({ type: 'varchar', length: 512, nullable: true })
+  @ApiProperty({
+    description: '유저 이미지 URL',
+    example: 'https://hamkke.com/image.png',
+    type: String,
+    required: false,
+  })
   profileImageUrl: string;
+
+  @Column({
+    type: 'enum',
+    enum: UserType,
+    default: UserType.LOCAL,
+    nullable: false,
+  })
+  @ApiProperty({
+    description: '유저 타입',
+    example: 'local',
+    type: 'enum',
+    default: UserType.LOCAL,
+    enum: UserType,
+    required: true,
+  })
+  userType: UserType;
 
   @UpdateDateColumn()
   @ApiProperty({

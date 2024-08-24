@@ -6,8 +6,9 @@ import { plainToClass } from 'class-transformer';
 
 import { CreateUserDto } from 'src/routes/users/dto/create-user.dto';
 import { UsersService } from 'src/routes/users/users.service';
+import { User, UserType } from 'src/entities/user.entity';
+import { OAuthUser } from './types/oauth-user.type';
 import { AuthResponseDto } from './dto/login-response.dto';
-import { User } from 'src/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -17,13 +18,18 @@ export class AuthService {
     private readonly usersService: UsersService,
   ) {}
 
-  async signup(data: CreateUserDto) {
-    const user = await this.findUser(data.username);
-    if (user) {
-      throw new ConflictException('이미 존재하는 사용자입니다');
+  async signup(data: CreateUserDto, isCheckUser: boolean = true) {
+    let hashedPassword: string | null = null;
+
+    if (isCheckUser) {
+      const user = await this.findUser(data.username);
+      if (user) {
+        throw new ConflictException('이미 존재하는 사용자입니다');
+      }
+
+      hashedPassword = await this.hashPassword(data.password);
     }
 
-    const hashedPassword = await this.hashPassword(data.password);
     const createdUser = await this.usersService.createUser({
       ...data,
       password: hashedPassword,
@@ -38,7 +44,7 @@ export class AuthService {
       info: {
         userId: createdUser.id,
         nickname: createdUser.nickname,
-        profileImageUrl: null,
+        profileImageUrl: createdUser.profileImageUrl,
       },
     };
 
@@ -108,5 +114,25 @@ export class AuthService {
     return this.jwtService.signAsync(payload, {
       expiresIn,
     });
+  }
+
+  /**
+   * OAuth 로그인 처리
+   */
+  async oauthLogin(user: OAuthUser, type: UserType) {
+    const existingUser = await this.findUser(user.username);
+
+    if (existingUser) {
+      return this.login(existingUser);
+    }
+
+    const createUserDto = {
+      username: user.username,
+      nickname: user.nickname,
+      profileImageUrl: user.profileImageUrl,
+      userType: UserType[type] as UserType,
+    };
+
+    return this.signup(createUserDto, false);
   }
 }

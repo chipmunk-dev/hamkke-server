@@ -14,6 +14,8 @@ import { AuthService } from './auth.service';
 import { AuthResponseDto } from './dto/login-response.dto';
 import { LocalAuthGuard } from './guard/local-auth.guard';
 import { GoogleAuthGuard } from './guard/google-auth.guard';
+import { GoogleUser } from './types/google-user.type';
+import { UserType } from 'src/entities/user.entity';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -71,11 +73,13 @@ export class AuthController {
     summary: '구글 로그인',
     description: '구글 로그인 페이지로 이동',
   })
-  @ApiResponse({
-    status: 302,
-    description: '구글 로그인 페이지로 이동',
-  })
   @UseGuards(GoogleAuthGuard)
   @Get('google')
   async googleAuth() {}
+
+  @UseGuards(GoogleAuthGuard)
+  @Get('google/callback')
+  async googleAuthRedirect(@Request() req) {
+    return this.authService.oauthLogin(req.user as GoogleUser, UserType.GOOGLE);
+  }
 }
