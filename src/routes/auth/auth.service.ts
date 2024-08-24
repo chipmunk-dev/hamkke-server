@@ -1,18 +1,13 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { hash, compare } from 'bcrypt';
 import { plainToClass } from 'class-transformer';
 
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { LoginUserDto } from 'src/users/dto/login-user.dto';
-import { UsersService } from 'src/users/users.service';
+import { CreateUserDto } from 'src/routes/users/dto/create-user.dto';
+import { UsersService } from 'src/routes/users/users.service';
 import { AuthResponseDto } from './dto/login-response.dto';
+import { User } from 'src/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -50,20 +45,9 @@ export class AuthService {
     return plainToClass(AuthResponseDto, result);
   }
 
-  async login(data: LoginUserDto) {
-    const user = await this.findUser(data.username);
-    if (!user) {
-      return new NotFoundException('존재하지 않는 계정입니다');
-    }
-
-    const isMath = await compare(data.password, user.password);
-    if (!isMath) {
-      throw new UnauthorizedException('비밀번호가 일치하지 않습니다');
-    }
-
+  async login(user: User) {
     const { accessToken, refreshToken } =
       await this.createAccessAndRefreshToken(user.id);
-
     const result = {
       accessToken,
       refreshToken,
@@ -79,6 +63,20 @@ export class AuthService {
 
   async findUser(username: string) {
     return await this.usersService.findUserByUsername(username);
+  }
+
+  async validateUser(username: string, password: string) {
+    const user = await this.findUser(username);
+    if (!user) {
+      return null;
+    }
+
+    const isMath = await compare(password, user.password);
+    if (!isMath) {
+      return null;
+    }
+
+    return user;
   }
 
   async createAccessAndRefreshToken(userId: number) {

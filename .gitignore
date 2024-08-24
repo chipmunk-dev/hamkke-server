@@ -445,3 +445,7 @@ $RECYCLE.BIN/
 *.launch
 .settings/
 *.sublime-workspace
+
+
+### Etc
+_todo*.txt

@@ -5,9 +5,9 @@ import ConfigModule from './config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { LoggingMiddleware } from './middleware/logging.middleware';
-import { UsersModule } from './users/users.module';
-import { AuthModule } from './auth/auth.module';
 import { ConfigService } from '@nestjs/config';
+import { UsersModule } from './routes/users/users.module';
+import { AuthModule } from './routes/auth/auth.module';
 
 @Module({
   imports: [

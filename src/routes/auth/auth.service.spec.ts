@@ -11,9 +11,9 @@ import * as bcrypt from 'bcrypt';
 
 import { AuthService } from './auth.service';
 import { User } from 'src/entities/user.entity';
-import { UsersService } from 'src/users/users.service';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { LoginUserDto } from 'src/users/dto/login-user.dto';
+import { UsersService } from 'src/routes/users/users.service';
+import { CreateUserDto } from 'src/routes/users/dto/create-user.dto';
+import { LoginUserDto } from 'src/routes/users/dto/login-user.dto';
 
 jest.mock('bcrypt', () => ({
   hash: jest.fn().mockResolvedValue('hashedPassword'),
