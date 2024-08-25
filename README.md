@@ -1,73 +1,66 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Hamkke Studt Web Server Repository
 
-## Installation
-
-```bash
-$ npm install
-```
+## URL
+-
 
 ## Running the app
 
+#### 0. 사전 준비
+
+a) Docker 설치 <br/>
+[Linux](https://docs.docker.com/desktop/install/linux-install/), 
+[Mac](https://docs.docker.com/desktop/install/mac-install/), 
+[Windows](https://docs.docker.com/desktop/install/windows-install/)
+
+b) Docker 설치 확인 <br/>
+  i) 로컬 terminal 실행 <br/>
+  ii) docker --version 입력시 버전 정보 확인 <br/>
+
+
+#### 1. `.env`파일을 프로젝트 루트에 생성 후에 아래의 코드를 복사 & 붙여넣기합니다.
+<strong>[Example]</strong><br/>
+
+[.env 예시](https://github.com/chipmunk-dev/hamkke-server/wiki/Create-%60.env%60-Template)
+
+#### 2. 서버를 실행하고 데이터베이스를 초기화 합니다.
+
 ```bash
-# development
-$ npm run start
+# 도커 실행 (서버 실행)
+$ npm run docker:build
 
-# watch mode
-$ npm run start:dev
+# 도커에 실행중인 서버 터미널 접속
+$ npm run docker:exec
 
-# production mode
-$ npm run start:prod
+# 데이터베이스 마이그레이션
+$ npm run migration:generate
+$ npm run migration:run
+
+# 서버 종료
+$ npm run docker:stop
 ```
 
-## Test
+## 명령어
+npm 을 기본으로 사용합니다. <br />
 
-```bash
-# unit tests
-$ npm run test
+**prefix: `npm run`**
+- `docker:start`: 서버 실행
+- `docker:build`: 서버에 변경점이 생겼을 경우 빌드 후 실행
+- `docker:restart`: 서버 재 실행
+- `docker:log`: 서버의 실시간 로그 확인
+- `docker:exec`: 실행중인 도커 컨테이너 터미널 접속
+- `docker:stop`: 서버 종료
 
-# e2e tests
-$ npm run test:e2e
+## API Documents
 
-# test coverage
-$ npm run test:cov
+#### Local
+```URL
+# .env.port 는 위에서 작성한 env파일의 port번호를 입력합니다.
+http://localhost:{.env.port}/api
 ```
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+#### Deploy
+```URL
+...
+```
