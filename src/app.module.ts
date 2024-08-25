@@ -23,6 +23,7 @@ import ConfigModule from './config';
         entities: [__dirname + '/**/*.entity.{js,ts}'],
         synchronize: false,
         logging: configService.get('DB_LOGGING') === 'true',
+        ssl: configService.get('DB_SSL') === 'true',
       }),
       inject: [ConfigService],
     }),
