@@ -6,7 +6,13 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiExcludeEndpoint,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { CreateUserDto } from 'src/routes/users/dto/create-user.dto';
 import { LoginUserDto } from 'src/routes/users/dto/login-user.dto';
@@ -79,6 +85,7 @@ export class AuthController {
   @Get('google')
   async googleAuth() {}
 
+  @ApiExcludeEndpoint()
   @UseGuards(GoogleAuthGuard)
   @Get('google/callback')
   async googleAuthRedirect(@Request() req) {
