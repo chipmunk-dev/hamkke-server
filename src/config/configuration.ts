@@ -1,4 +1,6 @@
 export default () => ({
+  NODE_ENV: process.env.NODE_ENV || 'development',
+  ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS || 'http://localhost:3000',
   PROTOCOL: process.env.PROTOCOL,
   HOST: process.env.HOST,
   PORT: process.env.PORT,
