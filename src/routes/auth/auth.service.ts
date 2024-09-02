@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { hash, compare } from 'bcrypt';
@@ -114,6 +118,27 @@ export class AuthService {
     return this.jwtService.signAsync(payload, {
       expiresIn,
     });
+  }
+
+  async refreshToken(refreshToken: string) {
+    try {
+      const payload = this.jwtService.verify(refreshToken, {
+        secret: this.configService.get('JWT_SECRET'),
+      });
+
+      const user = await this.usersService.findUserById(payload.sub);
+      if (!user) {
+        throw new UnauthorizedException('유효하지 않은 토큰입니다.');
+      }
+
+      const accessToken = await this.createTokens(user.id, false);
+
+      return {
+        accessToken,
+      };
+    } catch (error) {
+      throw new UnauthorizedException('유효하지 않은 토큰입니다.');
+    }
   }
 
   /**
