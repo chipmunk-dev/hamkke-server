@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Redirect,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -24,11 +25,15 @@ import { GoogleUser } from './types/google-user.type';
 import { UserType } from 'src/entities/user.entity';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { JwtRefreshGuard } from './guard/jwt-refresh.guard';
+import { ConfigService } from '@nestjs/config';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @ApiOperation({
     summary: '회원가입',
@@ -88,8 +93,24 @@ export class AuthController {
   @ApiExcludeEndpoint()
   @UseGuards(GoogleAuthGuard)
   @Get('google/callback')
+  @Redirect()
   async googleAuthRedirect(@Request() req) {
-    return this.authService.oauthLogin(req.user as GoogleUser, UserType.GOOGLE);
+    const loginResult = await this.authService.oauthLogin(
+      req.user as GoogleUser,
+      UserType.GOOGLE,
+    );
+    const queryParams = new URLSearchParams({
+      loginData: JSON.stringify({
+        accessToken: loginResult.accessToken,
+        refreshToken: loginResult.refreshToken,
+        userId: loginResult.info.userId.toString(),
+        nickname: loginResult.info.nickname,
+        profileImageUrl: loginResult.info.profileImageUrl || '',
+      }),
+    }).toString();
+
+    const clientUrl = this.configService.get('ALLOWED_ORIGINS');
+    return { url: `${clientUrl}/login?${queryParams}` };
   }
 
   @ApiOperation({
