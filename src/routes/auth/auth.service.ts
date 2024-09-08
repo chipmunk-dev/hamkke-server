@@ -81,7 +81,7 @@ export class AuthService {
       return null;
     }
 
-    const isMath = await compare(password, user.password);
+    const isMath = await this.comparePassword(password, user.password);
     if (!isMath) {
       return null;
     }
@@ -103,6 +103,10 @@ export class AuthService {
     const hashedPassword = await hash(password, SALT_ROUNDS);
 
     return hashedPassword;
+  }
+
+  async comparePassword(password: string, hashedPassword: string) {
+    return await compare(password, hashedPassword);
   }
 
   async createTokens(userId: number, isRefreshToken: boolean) {
